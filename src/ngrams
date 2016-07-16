@@ -1,0 +1,36 @@
+#!/usr/bin/php
+<?php
+
+/**
+ * set memory limit & execution time to infinite 
+ */
+ini_set("memory_limit", "-1");
+set_time_limit(0);
+
+/**
+ * Read CLI inputs to get size of grams to be generated
+ * print error message & exit if not found
+ */
+$options = getopt("n:");
+$n = (isset($options['n'])) ? $options['n'] : '';
+if ($n === '' || $n <= 1 || $n > 4) { 
+	echo "Please provide the value of n where  1 < n <= 4 \n\n"; 
+	exit(1); 
+}
+
+/**
+ * require the class file for generating n-Grams
+ */
+require_once("generators/GramGenerator.php");
+
+/**
+ * generate grams from the line feed to stdin 
+ */
+$generator = new nGrams\generator\GramGenerator($n);
+while ($line = fgets(STDIN)) {
+	$line = rtrim($line);
+	if(empty($line)) continue;
+	$generator->feed($line);
+	$grams = array_keys($generator->get_grams());
+	array_walk($grams, function($g){echo "$g\n";});
+}
